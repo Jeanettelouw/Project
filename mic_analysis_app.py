@@ -64,15 +64,7 @@ def plot_data(data, year, observed_MIC, ECOFF_value, start_year, end_year):
     ax1.set_xlabel("Year")
     plt.tight_layout()
     st.pyplot(fig)  # Replace plt.show() with this
-    
-    year = st.selectbox("Select the year column", data.columns)
-    observed_MIC = st.selectbox("Select the MIC column", data.columns)
-    ECOFF_value = st.number_input("Enter ECOFF value", min_value=0.0, value=1.0, step=0.1)
-    start_year = st.number_input("Start Year", min_value=int(data[year].min()), max_value=int(data[year].max()), value=int(data[year].min()))
-    end_year = st.number_input("End Year", min_value=int(data[year].min()), max_value=int(data[year].max()), value=int(data[year].max()))
 
-    
-    
 # Title of the app
 st.title("Antimicrobial Susceptibility Testing")
 
@@ -81,6 +73,17 @@ uploaded_file = st.file_uploader("Choose an Excel file", type="xlsx")
 
 if uploaded_file is not None:
     data = pd.read_excel(uploaded_file)
+    
+    min_year = 2000
+    max_year = 2024
+    
+    year = st.selectbox("Select the year column", data.columns)
+    observed_MIC = st.selectbox("Select the MIC column", data.columns)
+    ECOFF_value = st.number_input("Enter ECOFF value", min_value=0.0, value=1.0, step=0.1)
+    start_year, end_year = st.slider("Select Year Range", min_value=min_year, max_value=max_year, value=(min_year, max_year))
+    #start_year = st.slider("Start Year", min_value=2000, max_value=2024, value=2020)
+    #end_year = st.slider("End Year", min_value=2000, max_value=2024, value=2020)
+    
     if st.button("Generate Plot"):
         plot_data(data, year, observed_MIC, ECOFF_value, start_year, end_year)
 
