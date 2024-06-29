@@ -27,13 +27,13 @@ def plot_data(data, observed_MIC, ECOFF_value, start_year, end_year):
     data['classify_ECOFF'] = data[observed_MIC].apply(lambda x: 'R' if x > ECOFF_value else 'NR')
     
     # Proportion of resistant and non-resistant isolates for each year
-    resistant_prop = data.groupby(Year)['classify_ECOFF'].apply(lambda x: (x == 'R').mean()).reset_index(name='resistant_proportions')
-    non_resistant_prop = data.groupby(Year)['classify_ECOFF'].apply(lambda x: (x != 'R').sum()).reset_index(name='non_resistant_count')
+    resistant_prop = data.groupby('Year')['classify_ECOFF'].apply(lambda x: (x == 'R').mean()).reset_index(name='resistant_proportions')
+    non_resistant_prop = data.groupby('Year')['classify_ECOFF'].apply(lambda x: (x != 'R').sum()).reset_index(name='non_resistant_count')
     non_resistant_prop['non_resistant_proportions'] = non_resistant_prop['non_resistant_count'] / non_resistant_prop['non_resistant_count'].sum()
     
     # Average for log2(MIC) of resistant and non-resistant isolates for each year
-    log2_mic_non_resistant = data[data['classify_ECOFF'] != 'R'].groupby(Year)[observed_MIC].apply(lambda x: np.mean(np.log2(x))).reset_index(name='log2_mic_mean')
-    log2_mic_resistant = data[data['classify_ECOFF'] == 'R'].groupby(Year)[observed_MIC].apply(lambda x: np.mean(np.log2(x))).reset_index(name='log2_mic_mean')
+    log2_mic_non_resistant = data[data['classify_ECOFF'] != 'R'].groupby('Year')[observed_MIC].apply(lambda x: np.mean(np.log2(x))).reset_index(name='log2_mic_mean')
+    log2_mic_resistant = data[data['classify_ECOFF'] == 'R'].groupby('Year')[observed_MIC].apply(lambda x: np.mean(np.log2(x))).reset_index(name='log2_mic_mean')
 
     # Plot for non-resistant isolates
     fig, ax2 = plt.subplots(figsize=(8, 6))
@@ -109,9 +109,7 @@ if uploaded_file is not None:
     observed_MIC = st.selectbox("Select the MIC value column", data.columns)
     ECOFF_value = st.number_input("Enter ECOFF value", min_value=0.0, value=1.0, step=0.1)
     start_year, end_year = st.slider("Select year range", min_value=min_year, max_value=max_year, value=(min_year, max_year))
-    #start_year = st.slider("Start Year", min_value=2000, max_value=2024, value=2020)
-    #end_year = st.slider("End Year", min_value=2000, max_value=2024, value=2020)
-    
+
     if st.button("Generate temporal plot"):
         plot_data(data, observed_MIC, ECOFF_value, start_year, end_year)
 
