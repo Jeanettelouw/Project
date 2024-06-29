@@ -12,7 +12,7 @@ import seaborn as sns
 import plotly.graph_objects as go
 
 
-# In[47]:
+# In[49]:
 
 
 def plot_data(data, year, observed_MIC, ECOFF_value, start_year, end_year):
@@ -67,42 +67,24 @@ def plot_data(data, year, observed_MIC, ECOFF_value, start_year, end_year):
 # Title of the app
 st.title("Antimicrobial Susceptibility Testing")
 
-# Load the data directly from the file
-data_path = "C:\\Users\\Jeanette\\Desktop\\UNI\\Y4 Hons\\Semester 1\\STK 795\\Code\\mic_analysis_app\\IsolateData28Jun.xlsx"
-data = pd.read_excel(data_path)
+# File uploader to allow users to upload their own data file
+uploaded_file = st.file_uploader("Choose an Excel file", type="xlsx")
 
-year = st.selectbox("Select the year column", data.columns)
-observed_MIC = st.selectbox("Select the MIC value column of specific AM agent", data.columns)
-ECOFF_value = st.number_input("Enter ECOFF value of AM-bacteria combination", min_value=0.0, value=1.0, step=0.1)
-start_year = st.slider("Start Year", min_value=2000, max_value=2025, value=2020)#st.number_input("Start Year", min_value=2000, max_value=2024, value=2020)
-end_year = st.slider("End Year", min_value=2000, max_value=2025, value=2020)#st.number_input("End Year", min_value=2000, max_value=2024, value=2020)
+if uploaded_file is not None:
+    data = pd.read_excel(uploaded_file)
 
-if st.button("Generate Temporal Plot"):
-    plot_data(data, year, observed_MIC, ECOFF_value, start_year, end_year)
+    year = st.selectbox("Select the year column", data.columns)
+    observed_MIC = st.selectbox("Select the MIC column", data.columns)
+    ECOFF_value = st.number_input("Enter ECOFF value", min_value=0.0, value=1.0, step=0.1)
+    start_year = st.number_input("Start Year", min_value=int(data[year].min()), max_value=int(data[year].max()), value=int(data[year].min()))
+    end_year = st.number_input("End Year", min_value=int(data[year].min()), max_value=int(data[year].max()), value=int(data[year].max()))
 
-
-# In[44]:
-
-
-#Command prompt: Powershell Prompt in Anaconda
-#conda info --envs
-#conda activate C:\Users\Jeanette\anaconda3
-#cd "C:\Users\Jeanette\Desktop\UNI\Y4 Hons\Semester 1\STK 795\Code\mic_analysis_app"
-#streamlit run mic_analysis_app.py
-
-# Enter -> opens tab to upload 
+    if st.button("Generate Plot"):
+        plot_data(data, year, observed_MIC, ECOFF_value, start_year, end_year)
 
 
-# In[45]:
+# In[ ]:
 
 
-# To see temporal trends
-#data = pd.read_excel("C:\\Users\\Jeanette\\Desktop\\UNI\\Y4 Hons\\Semester 1\\STK 795\\Code\\mic_analysis_app\\IsolateData28Jun.xlsx")
-#year = 'Data Year'
-#observed_MIC = 'CHL Rslt'
-#ECOFF_value = 16
-#start_year = 2005
-#end_year = 2024
 
-#plot_data(data, year, observed_MIC, ECOFF_value, start_year, end_year)
 
