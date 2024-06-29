@@ -21,7 +21,7 @@ def plot_data(data, observed_MIC, ECOFF_value, start_year, end_year):
     #data[Year] = data[Year].astype(str).str.replace('*', '').astype(int)
     
     # Filter out year
-    data = data[(data[Year] >= start_year) & (data[Year] <= end_year)]
+    data = data[(data['Year'] >= start_year) & (data['Year'] <= end_year)]
     
     # Classify isolates based on ECOFF value
     data['classify_ECOFF'] = data[observed_MIC].apply(lambda x: 'R' if x > ECOFF_value else 'NR')
@@ -32,17 +32,17 @@ def plot_data(data, observed_MIC, ECOFF_value, start_year, end_year):
     non_resistant_prop['non_resistant_proportions'] = non_resistant_prop['non_resistant_count'] / non_resistant_prop['non_resistant_count'].sum()
     
     # Average for log2(MIC) of resistant and non-resistant isolates for each year
-    log2_mic_non_resistant = data[data['classify_ECOFF'] != 'R'].groupby(year)[observed_MIC].apply(lambda x: np.mean(np.log2(x))).reset_index(name='log2_mic_mean')
-    log2_mic_resistant = data[data['classify_ECOFF'] == 'R'].groupby(year)[observed_MIC].apply(lambda x: np.mean(np.log2(x))).reset_index(name='log2_mic_mean')
+    log2_mic_non_resistant = data[data['classify_ECOFF'] != 'R'].groupby(Year)[observed_MIC].apply(lambda x: np.mean(np.log2(x))).reset_index(name='log2_mic_mean')
+    log2_mic_resistant = data[data['classify_ECOFF'] == 'R'].groupby(Year)[observed_MIC].apply(lambda x: np.mean(np.log2(x))).reset_index(name='log2_mic_mean')
 
     # Plot for non-resistant isolates
     fig, ax2 = plt.subplots(figsize=(8, 6))
-    ax2.bar(non_resistant_prop[Year], non_resistant_prop['non_resistant_proportions'], color='lightsteelblue', label='Proportion')
+    ax2.bar(non_resistant_prop['Year'], non_resistant_prop['non_resistant_proportions'], color='lightsteelblue', label='Proportion')
     ax2.set_ylabel("Proportion on categorical scale")
     ax2.legend(title="", title_fontsize='11', fontsize='9', bbox_to_anchor=(0.01, 1.015), loc='upper left')
     ax2.set_yticks([i*0.02 for i in range(int(max(non_resistant_prop['non_resistant_proportions'] + 0.02)/0.02)+1)])
     ax2_2 = ax2.twinx()
-    ax2_2.plot(log2_mic_non_resistant[Year], log2_mic_non_resistant['log2_mic_mean'], color='steelblue', linestyle='-', label='Average of log2(MIC) levels', linewidth=1.2)
+    ax2_2.plot(log2_mic_non_resistant['Year'], log2_mic_non_resistant['log2_mic_mean'], color='steelblue', linestyle='-', label='Average of log2(MIC) levels', linewidth=1.2)
     ax2_2.set_ylabel("Average of log2(MIC) levels")
     ax2_2.legend(title="", title_fontsize='11', fontsize='9', bbox_to_anchor=(0.01, 0.9), loc='lower left')
     ax2.set_title("Non-resistant Isolates")
@@ -52,12 +52,12 @@ def plot_data(data, observed_MIC, ECOFF_value, start_year, end_year):
     
     # Plot for resistant isolates
     fig, ax1 = plt.subplots(figsize=(8, 6))
-    ax1.bar(resistant_prop[Year], resistant_prop['resistant_proportions'], color='salmon', label='Proportion')
+    ax1.bar(resistant_prop['Year'], resistant_prop['resistant_proportions'], color='salmon', label='Proportion')
     ax1.set_ylabel("Proportion on categorical scale")
     ax1.legend(title="", title_fontsize='11', fontsize='9', bbox_to_anchor=(0.01, 1.015), loc='upper left')
     ax1.set_yticks([i*0.02 for i in range(int(max(resistant_prop['resistant_proportions'] + 0.02)/0.02)+1)])
     ax1_2 = ax1.twinx()
-    ax1_2.plot(log2_mic_resistant[Year], log2_mic_resistant['log2_mic_mean'], color='brown', linestyle='-', label='Average of log2(MIC) levels', linewidth=1.2)
+    ax1_2.plot(log2_mic_resistant['Year'], log2_mic_resistant['log2_mic_mean'], color='brown', linestyle='-', label='Average of log2(MIC) levels', linewidth=1.2)
     ax1_2.set_ylabel("Average of log2(MIC) levels")
     ax1_2.legend(title="", title_fontsize='11', fontsize='9', bbox_to_anchor=(0.01, 0.9), loc='lower left')
     ax1.set_title("Resistant Isolates")
@@ -95,8 +95,8 @@ uploaded_file = st.file_uploader("Choose an XLSX file", type="xlsx")
 if uploaded_file is not None:
     data = pd.read_excel(uploaded_file)
     
-    min_year = 2000
-    max_year = 2024
+    min_year = int(data['Year'].min())
+    max_year = int(data['Year'].max())
     
     # Select boxes for Genus, Species, and Serotype
     genus = st.selectbox("Select the Genus", data['Genus'].unique())
