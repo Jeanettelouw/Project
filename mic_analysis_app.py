@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[46]:
+# In[53]:
 
 
 import streamlit as st
@@ -10,11 +10,89 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import plotly.graph_objects as go
+import re
 
 
-# In[49]:
+# In[54]:
 
 
+# Year based plot
+def create_yearly_mic_table(data, selected_year, observed_MIC, ECOFF_value, equiv_column):
+    # Get all unique MIC values from the entire dataset
+    all_mic_values = sorted(
+        set((data[equiv_column] + data[observed_MIC].astype(str)).unique()),
+        key=lambda x: int(re.search(r'\d+', x).group(0))
+    )
+    
+    # Filter data for the specific year
+    data_year = data[data['Year'].astype(str).str.replace('*', '').astype(int) == selected_year]
+    
+    # Combine the equivalence and MIC result into a single column
+    data_year['Adjusted MIC'] = data_year[equiv_column] + data_year[observed_MIC].astype(str)
+    
+    # Calculate counts and percentages
+    mic_counts = data_year['Adjusted MIC'].value_counts().reindex(all_mic_values, fill_value=0)
+    mic_table = pd.DataFrame({'MIC': mic_counts.index, 'Count': mic_counts.values})
+    
+    total_count = mic_table['Count'].sum()
+    mic_table['Total'] = total_count
+    mic_table['Percent'] = (mic_table['Count'] / total_count) * 100
+    
+    # Function to clean MIC values and extract integers
+    def clean_mic_value(mic_str):
+        return int(re.search(r'\d+', mic_str).group(0))
+    
+    # Determine Conclusion and sort table
+    mic_table['Conclusion'] = mic_table['MIC'].apply(lambda x: 'R' if clean_mic_value(x) > ECOFF_value else 'NR')
+    mic_table['MIC_clean'] = mic_table['MIC'].apply(clean_mic_value)
+    mic_table = mic_table.sort_values(by='MIC_clean').drop(columns=['MIC_clean'])
+
+    # Plot by year
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # Create bars with different colors for R and NR
+    bar_width = 0.8  # Bar width can be adjusted if needed
+    nr_bars = ax.bar(mic_table[mic_table['Conclusion'] == 'NR']['MIC'], 
+                     mic_table[mic_table['Conclusion'] == 'NR']['Percent'], 
+                     color='lightsteelblue', label='Non-resistant', width=bar_width)
+    r_bars = ax.bar(mic_table[mic_table['Conclusion'] == 'R']['MIC'], 
+                    mic_table[mic_table['Conclusion'] == 'R']['Percent'], 
+                    color='salmon', label='Resistant', width=bar_width)
+    
+    # Add labels
+    for bars in [nr_bars, r_bars]:
+        for bar in bars:
+            yval = bar.get_height()
+            ax.text(bar.get_x() + bar.get_width()/2.0, yval, f'{yval:.1f}%', 
+                 va='bottom', ha='center')
+    
+    # Add a red broken line for the ECOFF value
+    ecoff_str = f'CHL{ECOFF_value}'  # Convert ECOFF value to match the MIC format in the x-axis
+    if ecoff_str in mic_table['MIC'].values:
+        ecoff_position = mic_table[mic_table['MIC'] == ecoff_str].index[0]
+        ax.axvline(x=ecoff_position + 0.5 * bar_width, color='red', linestyle='--', label='ECOFF')
+    else:
+        closest_mic = min(all_mic_values, key=lambda x: abs(clean_mic_value(x) - ECOFF_value))
+        closest_position = mic_table[mic_table['MIC'] == closest_mic].index[0]
+        ax.axvline(x=closest_position + 0.5 * bar_width, color='red', linestyle='--', label='ECOFF')
+
+    # Create legend
+    ax.legend(loc='upper left', facecolor='white', edgecolor='none')
+    
+    ax.set_xlabel('MIC (µg/mL)')
+    ax.set_ylabel('Percentage')
+    ax.set_title(f'MIC Distribution for {selected_year}')
+    ax.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    st.pyplot(fig)
+    
+    #return mic_table # can comment this out
+
+
+# In[55]:
+
+
+# Temporal plot
 def plot_data(data, observed_MIC, ECOFF_value, start_year, end_year):
     
     # Remove any asterisks from the year column and convert to integers
@@ -66,7 +144,7 @@ def plot_data(data, observed_MIC, ECOFF_value, start_year, end_year):
     st.pyplot(fig)  # Replace plt.show() with this
 
 
-# In[51]:
+# In[56]:
 
 
 # Title of the app
@@ -109,7 +187,13 @@ if uploaded_file is not None:
     observed_MIC = st.selectbox("Select the MIC value column", data.columns)
     ECOFF_value = st.number_input("Enter ECOFF value", min_value=0.0, value=1.0, step=0.1)
     start_year, end_year = st.slider("Select year range", min_value=min_year, max_value=max_year, value=(min_year, max_year))
-
+    
+    equiv_column = st.selectbox("Select sign column", data.columns)
+    selected_year = st.slider("Select year", min_year, max_year, 2020)
+    
+    if st.button("Generate year plot"):
+        create_yearly_mic_table(data, selected_year, observed_MIC, ECOFF_value, equiv_column)
+        
     if st.button("Generate temporal plot"):
         plot_data(data, observed_MIC, ECOFF_value, start_year, end_year)
 
