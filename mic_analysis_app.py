@@ -152,11 +152,7 @@ st.title("Antimicrobial Susceptibility Testing")
 
 # Description of the app
 st.markdown("""
-This app analyses antimicrobial resistance data from uploaded files. It visualises the 
-proportions of resistant and non-resistant isolates over the years for a specific antimicrobial-bacteria combination using histograms. 
-The histogram analysis does not account for the ordinal levels of MIC (minimum inhibitory concentration) data. 
-Improved insights are provided by plotting overlapping curves representing the average log2(MIC) levels. 
-However, these curves may not accurately reflect the data due to the neglect of important characteristics such as left- and right-censoring.""")
+This app analyses temporal trends antimicrobial resistance data from uploaded files.""")
 
 # Display a warning message
 st.warning("""
@@ -176,24 +172,51 @@ if uploaded_file is not None:
     min_year = int(data['Year'].min())
     max_year = int(data['Year'].max())
     
+        
+    st.markdown("""
+    This app analyses antimicrobial resistance data from uploaded files. It visualises a yearly pecentage histogram of resistant and non-resistant 
+    MIC (minimum inhibitory concentration) values for a specific antimicrobial-bacteria combination, called MIC distribution.
+    When the non-resistant and resistant bars are both stacked seperately, a temporal trend can be achieved.""")
+    
     # Select boxes for Genus, Species, and Serotype
     genus = st.selectbox("Select the Genus", data['Genus'].unique())
     species = st.selectbox("Select the Species", data['Species'].unique())
     serotype = st.selectbox("Select the Serotype", data['Serotype'].unique())
+    ECOFF_value = st.number_input("Enter ECOFF value", min_value=0.0, value=1.0, step=0.001)
     
     # Filter data based on selected Genus, Species, and Serotype
     filtered_data = data[(data['Genus'] == genus) & (data['Species'] == species) & (data['Serotype'] == serotype)]
     
     observed_MIC = st.selectbox("Select the MIC value column", data.columns)
-    ECOFF_value = st.number_input("Enter ECOFF value", min_value=0.0, value=1.0, step=0.1)
-    start_year, end_year = st.slider("Select year range", min_value=min_year, max_value=max_year, value=(min_year, max_year))
-    
     equiv_column = st.selectbox("Select sign column", data.columns)
     selected_year = st.slider("Select year", min_year, max_year, 2020)
     
     if st.button("Generate year plot"):
         create_yearly_mic_table(data, selected_year, observed_MIC, ECOFF_value, equiv_column)
-        
+    
+    
+    
+    
+    
+    st.markdown("""The proportions of resistant and non-resistant isolates over the years for a specific antimicrobial-bacteria combination, 
+    displayed using histograms, illustrate the temporal trend. However, the histogram does not account for the ordinal nature of MIC values. 
+    Essentially, the closer the bars are to the ECOFF line in the MIC distribution, the more dangerously close they are to becoming resistant over time.
+    Enhanced insights can be gained by assigning weights to the MIC values. One approach is to take the logarithm (base 2) of the observed MIC values 
+    and average these values for each year, represented by overlapping curves.
+    Despite these improvements, the results still do not fully capture the nature of the data. This is because they overlook important characteristics,
+    such as modeling the observed MIC values rather than the true ones within those bounds, and neglect the left- and right-censoring of the observed MIC values""")
+    
+    # Select boxes for Genus, Species, and Serotype
+    genus = st.selectbox("Select the Genus", data['Genus'].unique())
+    species = st.selectbox("Select the Species", data['Species'].unique())
+    serotype = st.selectbox("Select the Serotype", data['Serotype'].unique())
+    ECOFF_value = st.number_input("Enter ECOFF value", min_value=0.0, value=1.0, step=0.001)
+    
+    # Filter data based on selected Genus, Species, and Serotype
+    filtered_data = data[(data['Genus'] == genus) & (data['Species'] == species) & (data['Serotype'] == serotype)]
+    
+    observed_MIC = st.selectbox("Select the MIC value column", data.columns)
+    start_year, end_year = st.slider("Select year range", min_value=min_year, max_value=max_year, value=(min_year, max_year))
     if st.button("Generate temporal plot"):
         plot_data(data, observed_MIC, ECOFF_value, start_year, end_year)
 
