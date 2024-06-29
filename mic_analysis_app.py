@@ -13,7 +13,7 @@ import plotly.graph_objects as go
 import re
 
 
-# In[54]:
+# In[57]:
 
 
 # Year based plot
@@ -21,7 +21,7 @@ def create_yearly_mic_table(data, selected_year, observed_MIC, ECOFF_value, equi
     # Get all unique MIC values from the entire dataset
     all_mic_values = sorted(
         set((data[equiv_column] + data[observed_MIC].astype(str)).unique()),
-        key=lambda x: int(re.search(r'\d+', x).group(0))  
+        key=lambda x: int(re.search(r'\d+', x).group(0))
     )
     
     # Filter data for the specific year
@@ -86,10 +86,12 @@ def create_yearly_mic_table(data, selected_year, observed_MIC, ECOFF_value, equi
     plt.tight_layout()
     st.pyplot(fig)
     
-    #return mic_table # can comment this out
+    #return mic_table # can comment this out   
+    
+    
 
 
-# In[55]:
+# In[58]:
 
 
 # Temporal plot
@@ -144,7 +146,7 @@ def plot_data(data, observed_MIC, ECOFF_value, start_year, end_year):
     st.pyplot(fig)  # Replace plt.show() with this
 
 
-# In[56]:
+# In[59]:
 
 
 # Title of the app
