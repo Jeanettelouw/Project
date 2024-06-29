@@ -74,10 +74,10 @@ if uploaded_file is not None:
     data = pd.read_excel(uploaded_file)
 
     year = st.selectbox("Select the year column", data.columns)
-    observed_MIC = st.selectbox("Select the MIC column", data.columns)
-    ECOFF_value = st.number_input("Enter ECOFF value", min_value=0.0, value=1.0, step=0.1)
-    start_year = st.number_input("Start Year", min_value=2000, max_value=2024, value=2020)
-    end_year = st.number_input("End Year", min_value=2000, max_value=2024, value=2020)
+    observed_MIC = st.selectbox("Select the MIC value column of specific AM agent", data.columns)
+    ECOFF_value = st.number_input("Enter ECOFF value of AM-bacteria combination", min_value=0.0, value=1.0, step=0.1)
+    start_year = st.slider("Start Year", min_value=2000, max_value=2024, value=2020)
+    end_year = st.slider("End Year", min_value=2000, max_value=2024, value=2020)
 
     if st.button("Generate Plot"):
         plot_data(data, year, observed_MIC, ECOFF_value, start_year, end_year)
