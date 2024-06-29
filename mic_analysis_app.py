@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import plotly.graph_objects as go
-import re
+#import re
 
 
 # In[54]:
@@ -158,7 +158,8 @@ This app analyses temporal trends antimicrobial resistance data from uploaded fi
 st.warning("""
 Please ensure the required format to proceed. This app supports only XLSX file format. 
 Ensure the following column names: 'Year', 'Genus', 'Species', 'Serotype'.
-Moreover, 'Year' column must be four digital format. While there must be at least one column of MIC values, in real number format, for a specific antimicrobial agent. 
+Moreover, 'Year' column must be four digital format. While there must be at least one column of MIC values (real number format) 
+for a specific antimicrobial agent which corresponds to a seperate column of a sign column (symbols of inequality and equality format).
 A unique ECOFF value must be predetermined for each AM-bacteria combination, or can alternatively be found 
 [here](https://mic.eucast.org/search/).
 """)
@@ -172,30 +173,24 @@ if uploaded_file is not None:
     min_year = int(data['Year'].min())
     max_year = int(data['Year'].max())
     
+    # Select boxes for Genus, Species, and Serotype
+    genus = st.selectbox("Select the Genus", data['Genus'].unique())
+    species = st.selectbox("Select the Species", data['Species'].unique())
+    serotype = st.selectbox("Select the Serotype", data['Serotype'].unique())
+    filtered_data = data[(data['Genus'] == genus) & (data['Species'] == species) & (data['Serotype'] == serotype)]
+        
+    ECOFF_value = st.number_input("Enter ECOFF value", min_value=0.0, value=1.0, step=0.001)
+    observed_MIC = st.selectbox("Select the MIC value column", data.columns)
+    equiv_column = st.selectbox("Select sign column", data.columns)    
+        
         
     st.markdown("""
     This app analyses antimicrobial resistance data from uploaded files. It visualises a yearly pecentage histogram of resistant and non-resistant 
     MIC (minimum inhibitory concentration) values for a specific antimicrobial-bacteria combination, called MIC distribution.
     When the non-resistant and resistant bars are both stacked seperately, a temporal trend can be achieved.""")
-    
-    # Select boxes for Genus, Species, and Serotype
-    genus = st.selectbox("Select the Genus", data['Genus'].unique())
-    species = st.selectbox("Select the Species", data['Species'].unique())
-    serotype = st.selectbox("Select the Serotype", data['Serotype'].unique())
-    ECOFF_value = st.number_input("Enter ECOFF value", min_value=0.0, value=1.0, step=0.001)
-    
-    # Filter data based on selected Genus, Species, and Serotype
-    filtered_data = data[(data['Genus'] == genus) & (data['Species'] == species) & (data['Serotype'] == serotype)]
-    
-    observed_MIC = st.selectbox("Select the MIC value column", data.columns)
-    equiv_column = st.selectbox("Select sign column", data.columns)
     selected_year = st.slider("Select year", min_year, max_year, 2020)
-    
     if st.button("Generate year plot"):
         create_yearly_mic_table(data, selected_year, observed_MIC, ECOFF_value, equiv_column)
-    
-    
-    
     
     
     st.markdown("""The proportions of resistant and non-resistant isolates over the years for a specific antimicrobial-bacteria combination, 
@@ -205,17 +200,6 @@ if uploaded_file is not None:
     and average these values for each year, represented by overlapping curves.
     Despite these improvements, the results still do not fully capture the nature of the data. This is because they overlook important characteristics,
     such as modeling the observed MIC values rather than the true ones within those bounds, and neglect the left- and right-censoring of the observed MIC values""")
-    
-    # Select boxes for Genus, Species, and Serotype
-    genus = st.selectbox("Select the Genus", data['Genus'].unique())
-    species = st.selectbox("Select the Species", data['Species'].unique())
-    serotype = st.selectbox("Select the Serotype", data['Serotype'].unique())
-    ECOFF_value = st.number_input("Enter ECOFF value", min_value=0.0, value=1.0, step=0.001)
-    
-    # Filter data based on selected Genus, Species, and Serotype
-    filtered_data = data[(data['Genus'] == genus) & (data['Species'] == species) & (data['Serotype'] == serotype)]
-    
-    observed_MIC = st.selectbox("Select the MIC value column", data.columns)
     start_year, end_year = st.slider("Select year range", min_value=min_year, max_value=max_year, value=(min_year, max_year))
     if st.button("Generate temporal plot"):
         plot_data(data, observed_MIC, ECOFF_value, start_year, end_year)
