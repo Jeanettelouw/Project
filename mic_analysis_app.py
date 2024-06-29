@@ -179,7 +179,7 @@ if uploaded_file is not None:
     serotype = st.selectbox("Select the Serotype", data['Serotype'].unique())
     filtered_data = data[(data['Genus'] == genus) & (data['Species'] == species) & (data['Serotype'] == serotype)]
         
-    ECOFF_value = st.number_input("Enter ECOFF value", min_value=0.0, value=1.0, step=0.001)
+    ECOFF_value = st.number_input("Enter unique ECOFF value", min_value=0.0, value=1.0, step=0.001)
     observed_MIC = st.selectbox("Select the MIC value column", data.columns)
     equiv_column = st.selectbox("Select sign column", data.columns)    
         
@@ -192,17 +192,6 @@ if uploaded_file is not None:
         create_yearly_mic_table(filtered_data, selected_year, observed_MIC, ECOFF_value, equiv_column)
     
     
-    st.markdown(""" When the non-resistant and resistant bars are both stacked seperately for the MIC distribution, a temporal trend can be achieved. 
-    This is seen by the histogram proportions of resistant and non-resistant isolates over the years for a specific antimicrobial-bacteria combination.
-    However, the histogram does not account for the ordinal nature of MIC values. 
-    Essentially, the closer the bars are to the ECOFF line in the MIC distribution, the more dangerously close they are to becoming resistant over time.
-    Enhanced insights can be gained by assigning weights to the MIC values. One approach is to take the logarithm (base 2) of the observed MIC values 
-    and average these values for each year, represented by overlapping curves.
-    Despite these improvements, the results still do not fully capture the nature of the data. This is because they overlook important characteristics,
-    such as modeling the observed MIC values rather than the true ones within those bounds, and neglect the left- and right-censoring of the observed MIC values""")
-    start_year, end_year = st.slider("Select year range", min_value=min_year, max_value=max_year, value=(min_year, max_year))
-    if st.button("Generate temporal plot"):
-        plot_data(filtered_data, observed_MIC, ECOFF_value, start_year, end_year)
 
 
 # In[ ]:
