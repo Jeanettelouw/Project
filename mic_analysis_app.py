@@ -21,7 +21,7 @@ def create_yearly_mic_table(data, selected_year, observed_MIC, ECOFF_value, equi
     # Get all unique MIC values from the entire dataset
     all_mic_values = sorted(
         set((data[equiv_column] + data[observed_MIC].astype(str)).unique()),
-        key=lambda x: int(re.search(r'\d+', x).group(0))
+        key=lambda x: int(re.search(r'\d+', x).group(0))  
     )
     
     # Filter data for the specific year
@@ -185,16 +185,16 @@ if uploaded_file is not None:
         
         
     st.markdown("""
-    This app analyses antimicrobial resistance data from uploaded files. It visualises a yearly pecentage histogram of resistant and non-resistant 
-    MIC (minimum inhibitory concentration) values for a specific antimicrobial-bacteria combination, called MIC distribution.
-    When the non-resistant and resistant bars are both stacked seperately, a temporal trend can be achieved.""")
+    A yearly pecentage histogram of resistant and non-resistant for 
+    MIC (minimum inhibitory concentration) values of a specific antimicrobial-bacteria combination can be visualised, called MIC distribution.""")
     selected_year = st.slider("Select year", min_year, max_year, 2020)
     if st.button("Generate year plot"):
-        create_yearly_mic_table(data, selected_year, observed_MIC, ECOFF_value, equiv_column)
+        create_yearly_mic_table(filtered_data, selected_year, observed_MIC, ECOFF_value, equiv_column)
     
     
-    st.markdown("""The proportions of resistant and non-resistant isolates over the years for a specific antimicrobial-bacteria combination, 
-    displayed using histograms, illustrate the temporal trend. However, the histogram does not account for the ordinal nature of MIC values. 
+    st.markdown(""" When the non-resistant and resistant bars are both stacked seperately for the MIC distribution, a temporal trend can be achieved. 
+    This is seen by the histogram proportions of resistant and non-resistant isolates over the years for a specific antimicrobial-bacteria combination.
+    However, the histogram does not account for the ordinal nature of MIC values. 
     Essentially, the closer the bars are to the ECOFF line in the MIC distribution, the more dangerously close they are to becoming resistant over time.
     Enhanced insights can be gained by assigning weights to the MIC values. One approach is to take the logarithm (base 2) of the observed MIC values 
     and average these values for each year, represented by overlapping curves.
@@ -202,7 +202,7 @@ if uploaded_file is not None:
     such as modeling the observed MIC values rather than the true ones within those bounds, and neglect the left- and right-censoring of the observed MIC values""")
     start_year, end_year = st.slider("Select year range", min_value=min_year, max_value=max_year, value=(min_year, max_year))
     if st.button("Generate temporal plot"):
-        plot_data(data, observed_MIC, ECOFF_value, start_year, end_year)
+        plot_data(filtered_data, observed_MIC, ECOFF_value, start_year, end_year)
 
 
 # In[ ]:
