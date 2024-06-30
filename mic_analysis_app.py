@@ -180,9 +180,9 @@ if uploaded_file is not None:
     selected_species = st.multiselect("Select Species", data['Species'].unique())
     selected_serotypes = st.multiselect("Select Serotype", data['Serotype'].unique())
 
-    st.write("Selected Genera:", selected_genera)
-    st.write("Selected Species:", selected_species)
-    st.write("Selected Serotypes:", selected_serotypes)
+    #st.write("Selected Genera:", selected_genera)
+    #st.write("Selected Species:", selected_species)
+    #st.write("Selected Serotypes:", selected_serotypes)
 
     # Filter the data based on selections
     filtered_data = data[
