@@ -176,10 +176,17 @@ if uploaded_file is not None:
     max_year = int(data['Year'].max())
     
     # Select boxes for Genus, Species, and Serotype
-    genus = st.selectbox("Select the Genus", data['Genus'].unique())
-    species = st.selectbox("Select the Species", data['Species'].unique())
-    serotype = st.selectbox("Select the Serotype", data['Serotype'].unique())
-    filtered_data = data[(data['Genus'] == genus) & (data['Species'] == species) & (data['Serotype'] == serotype)]
+    # Multiselect for Genus, Species, and Serotype
+    selected_genera = st.multiselect("Select Genus", data['Genus'].unique())
+    selected_species = st.multiselect("Select Species", data['Species'].unique())
+    selected_serotypes = st.multiselect("Select Serotype", data['Serotype'].unique())
+
+    # Filter the data based on selections
+    filtered_data = data[
+        (data['Genus'].isin(selected_genera)) &
+        (data['Species'].isin(selected_species)) &
+        (data['Serotype'].isin(selected_serotypes))
+    ]
         
     ECOFF_value = st.number_input("Enter unique ECOFF value", min_value=0.0, value=1.0, step=0.001)
     observed_MIC = st.selectbox("Select the MIC value column", data.columns)
