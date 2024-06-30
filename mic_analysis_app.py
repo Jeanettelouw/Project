@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[53]:
+# In[1]:
 
 
 import streamlit as st
@@ -13,7 +13,7 @@ import plotly.graph_objects as go
 import re
 
 
-# In[57]:
+# In[2]:
 
 
 # Year based plot
@@ -91,7 +91,7 @@ def create_yearly_mic_table(data, selected_year, observed_MIC, ECOFF_value, equi
     
 
 
-# In[58]:
+# In[3]:
 
 
 # Temporal plot
@@ -146,7 +146,7 @@ def plot_data(data, observed_MIC, ECOFF_value, start_year, end_year):
     st.pyplot(fig)  # Replace plt.show() with this
 
 
-# In[59]:
+# In[4]:
 
 
 # Title of the app
@@ -175,11 +175,14 @@ if uploaded_file is not None:
     min_year = int(data['Year'].min())
     max_year = int(data['Year'].max())
     
-    # Select boxes for Genus, Species, and Serotype
     # Multiselect for Genus, Species, and Serotype
     selected_genera = st.multiselect("Select Genus", data['Genus'].unique())
     selected_species = st.multiselect("Select Species", data['Species'].unique())
     selected_serotypes = st.multiselect("Select Serotype", data['Serotype'].unique())
+
+    st.write("Selected Genera:", selected_genera)
+    st.write("Selected Species:", selected_species)
+    st.write("Selected Serotypes:", selected_serotypes)
 
     # Filter the data based on selections
     filtered_data = data[
