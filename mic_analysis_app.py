@@ -161,16 +161,16 @@ This app analyses temporal trends antimicrobial resistance data from uploaded fi
 
 # Display a warning message
 st.warning("""
-Please ensure the required file format to proceed. This app supports only XLSX file format. 
+When uploading a file, please ensure the required file format to proceed. This app supports only XLSX file format. 
 Ensure the following column names: 'Year', 'Genus', 'Species', 'Serotype'.
 Moreover, 'Year' column must be in four digit format. While there must be at least one column of MIC values (real number format) 
-for a specific antimicrobial agent which corresponds to a seperate column of a sign column (symbols of inequality and equality format).
-A unique ECOFF value must be predetermined for each AM-bacteria combination, or can alternatively be found 
-[here](https://mic.eucast.org/search/).
+for a specific antimicrobial agent, corresponding to a seperate column of a sign column (symbols of inequality and equality format).
+A unique ECOFF value must be predetermined for each antimicrobial-bacteria combination, or can alternatively be found 
+[here](https://mic.eucast.org/search/). 
 """)
 
-# Define the URL
-example_url = 'https://github.com/Jeanettelouw/Project/raw/main/Human.xlsx'#'https://github.com/Jeanettelouw/Project/raw/main/IsolateData28Jun.xlsx'
+# Define the URL (only chnage this for example data)
+example_url = 'https://github.com/Jeanettelouw/Project/raw/main/IsolateData28Jun.xlsx'#'https://github.com/Jeanettelouw/Project/raw/main/Human.xlsx'#
 
 # Function to load example data from GitHub
 def load_example_data(url):
@@ -208,8 +208,8 @@ if 'data' in locals():
     ]
         
     ECOFF_value = st.number_input("Enter unique ECOFF value", min_value=0.0, value=1.0, step=0.001)
-    observed_MIC = st.selectbox("Select the MIC value column", data.columns)
-    equiv_column = st.selectbox("Select sign column", data.columns)    
+    observed_MIC = st.selectbox("Select the MIC value column (example 'CHL Rslt')", data.columns)
+    equiv_column = st.selectbox("Select sign column (example 'CHL Rslt')", data.columns)    
         
         
     st.markdown("""
