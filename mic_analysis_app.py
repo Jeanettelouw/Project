@@ -13,7 +13,7 @@ import plotly.graph_objects as go
 import re 
 
 import requests
-from io import BytesIO
+import io
 
 
 # In[2]:
