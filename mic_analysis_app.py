@@ -170,7 +170,7 @@ A unique ECOFF value must be predetermined for each AM-bacteria combination, or 
 """)
 
 # Define the URL
-example_url = 'https://github.com/Jeanettelouw/Project/raw/main/IsolateData28Jun.xlsx'
+example_url = 'https://github.com/Jeanettelouw/Project/raw/main/Human.xlsx'#'https://github.com/Jeanettelouw/Project/raw/main/IsolateData28Jun.xlsx'
 
 # Function to load example data from GitHub
 def load_example_data(url):
