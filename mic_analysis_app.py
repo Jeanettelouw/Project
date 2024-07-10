@@ -12,8 +12,8 @@ import seaborn as sns
 import plotly.graph_objects as go
 import re 
 
-import io
 import requests
+from io import BytesIO
 
 
 # In[2]:
@@ -152,14 +152,6 @@ def plot_data(data, observed_MIC, ECOFF_value, start_year, end_year):
 # In[4]:
 
 
-# Function to load example data from GitHub
-@st.cache
-def load_example_data(url):
-    response = requests.get(url)
-    data = io.BytesIO(response.content)
-    df = pd.read_excel(data, sheet_name='Sheet1', engine='openpyxl')  # Specify the engine here
-    return df
-
 # Title of the app
 st.title("Antimicrobial Susceptibility Testing")
 
@@ -169,7 +161,7 @@ This app analyses temporal trends antimicrobial resistance data from uploaded fi
 
 # Display a warning message
 st.warning("""
-Please ensure the required format to proceed. This app supports only XLSX file format. 
+Please ensure the required file format to proceed. This app supports only XLSX file format. 
 Ensure the following column names: 'Year', 'Genus', 'Species', 'Serotype'.
 Moreover, 'Year' column must be in four digit format. While there must be at least one column of MIC values (real number format) 
 for a specific antimicrobial agent which corresponds to a seperate column of a sign column (symbols of inequality and equality format).
@@ -177,26 +169,29 @@ A unique ECOFF value must be predetermined for each AM-bacteria combination, or 
 [here](https://mic.eucast.org/search/).
 """)
 
-# File uploader to allow users to upload their own data file
-uploaded_file = st.file_uploader("Upload your own XLSX file:", type="xlsx")
+# Define the URL
+example_url = 'https://github.com/Jeanettelouw/Project/raw/main/IsolateData28Jun.xlsx'
 
-# Example data from GitHub
-example_url = 'https://github.com/Jeanettelouw/Project/blob/main/IsolateData28Jun.xlsx'  # Replace with your GitHub URL
-example_data = load_example_data(example_url)
+# Function to load example data from GitHub
+def load_example_data(url):
+    response = requests.get(url)
+    data = io.BytesIO(response.content)
+    df = pd.read_excel(data, engine='openpyxl')
+    return df
 
-# Display example data download button
-if st.button("Use Example Data"):
-    st.download_button(
-        label="Download Example Data",
-        data=example_data,
-        file_name="IsolateData28Jun.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
+# Radio button for user choice: Upload file or use example data
+option = st.radio("Choose data source:", ("Upload a file", "Use example data"))
 
-# Process uploaded file if provided
-if uploaded_file is not None:
-    data = pd.read_excel(uploaded_file, engine='openpyxl')
-    
+if option == "Upload a file":
+    # File uploader to allow users to upload their own data file
+    uploaded_file = st.file_uploader("Choose an XLSX file", type="xlsx")
+    if uploaded_file is not None:
+        data = pd.read_excel(uploaded_file)
+else:
+    # Load example data from GitHub
+    data = load_example_data(example_url)
+
+if 'data' in locals():
     min_year = int(data['Year'].min())
     max_year = int(data['Year'].max())
     
@@ -204,10 +199,6 @@ if uploaded_file is not None:
     selected_genera = st.multiselect("Select Genus", data['Genus'].unique())
     selected_species = st.multiselect("Select Species", data['Species'].unique())
     selected_serotypes = st.multiselect("Select Serotype", data['Serotype'].unique())
-
-    #st.write("Selected Genera:", selected_genera)
-    #st.write("Selected Species:", selected_species)
-    #st.write("Selected Serotypes:", selected_serotypes)
 
     # Filter the data based on selections
     filtered_data = data[
@@ -222,14 +213,15 @@ if uploaded_file is not None:
         
         
     st.markdown("""
-    A yearly pecentage histogram of resistant and non-resistant for 
-    MIC (minimum inhibitory concentration) values of a specific antimicrobial-bacteria combination can be visualised, called MIC distribution.""")
+    A yearly percentage histogram of resistant and non-resistant for 
+    MIC (minimum inhibitory concentration) values of a specific antimicrobial-bacteria combination can be visualized, called MIC distribution.""")
     selected_year = st.slider("Select year", min_year, max_year, 2020)
     if st.button("Generate year plot"):
         create_yearly_mic_table(filtered_data, selected_year, observed_MIC, ECOFF_value, equiv_column)
     
     
-    st.markdown(""" When the non-resistant and resistant bars are both stacked seperately for the MIC distribution, a temporal trend can be achieved. 
+    st.markdown(""" 
+    When the non-resistant and resistant bars are both stacked separately for the MIC distribution, a temporal trend can be achieved. 
     This is seen by the histogram proportions of resistant and non-resistant isolates over the years for a specific antimicrobial-bacteria combination.
     However, the histogram does not account for the ordinal nature of MIC values. 
     Essentially, the closer the bars are to the ECOFF line in the MIC distribution, the more dangerously close they are to becoming resistant over time.
