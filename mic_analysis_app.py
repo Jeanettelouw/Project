@@ -189,7 +189,7 @@ if st.button("Use Example Data"):
     st.download_button(
         label="Download Example Data",
         data=example_data,
-        file_name="Human.xlsx",
+        file_name="IsolateData28Jun.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
