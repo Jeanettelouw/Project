@@ -10,7 +10,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import plotly.graph_objects as go
-import re
+import re 
+
+import io
+import requests
 
 
 # In[2]:
@@ -149,6 +152,14 @@ def plot_data(data, observed_MIC, ECOFF_value, start_year, end_year):
 # In[4]:
 
 
+# Function to load example data from GitHub
+@st.cache
+def load_example_data(url):
+    response = requests.get(url)
+    data = io.BytesIO(response.content)
+    df = pd.read_excel(data, sheet_name='Sheet1')  # Adjust sheet_name if necessary
+    return df
+
 # Title of the app
 st.title("Antimicrobial Susceptibility Testing")
 
@@ -160,15 +171,29 @@ This app analyses temporal trends antimicrobial resistance data from uploaded fi
 st.warning("""
 Please ensure the required format to proceed. This app supports only XLSX file format. 
 Ensure the following column names: 'Year', 'Genus', 'Species', 'Serotype'.
-Moreover, 'Year' column must be four digital format. While there must be at least one column of MIC values (real number format) 
+Moreover, 'Year' column must be in four digit format. While there must be at least one column of MIC values (real number format) 
 for a specific antimicrobial agent which corresponds to a seperate column of a sign column (symbols of inequality and equality format).
 A unique ECOFF value must be predetermined for each AM-bacteria combination, or can alternatively be found 
 [here](https://mic.eucast.org/search/).
 """)
 
 # File uploader to allow users to upload their own data file
-uploaded_file = st.file_uploader("Choose an XLSX file", type="xlsx")
+uploaded_file = st.file_uploader("Upload your own XLSX file:", type="xlsx")
 
+# Example data from GitHub
+example_url = 'https://github.com/Jeanettelouw/Project/blob/main/IsolateData28Jun.xlsx'  # Replace with your GitHub URL
+example_data = load_example_data(example_url)
+
+# Display example data download button
+if st.button("Use Example Data"):
+    st.download_button(
+        label="Download Example Data",
+        data=example_data,
+        file_name="Human.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+# Process uploaded file if provided
 if uploaded_file is not None:
     data = pd.read_excel(uploaded_file)
     
@@ -220,7 +245,7 @@ if uploaded_file is not None:
 # In[ ]:
 
 
-
+#Error message if something did wrong
 
 
 # In[ ]:
