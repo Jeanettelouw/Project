@@ -209,7 +209,7 @@ if 'data' in locals():
         
     ECOFF_value = st.number_input("Enter unique ECOFF value", min_value=0.0, value=1.0, step=0.001)
     observed_MIC = st.selectbox("Select the MIC value column (example 'CHL Rslt')", data.columns)
-    equiv_column = st.selectbox("Select sign column (example 'CHL Rslt')", data.columns)    
+    equiv_column = st.selectbox("Select sign column (example 'CHL Equiv')", data.columns)    
         
         
     st.markdown("""
