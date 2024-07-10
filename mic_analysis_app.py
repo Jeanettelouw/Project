@@ -157,7 +157,7 @@ def plot_data(data, observed_MIC, ECOFF_value, start_year, end_year):
 def load_example_data(url):
     response = requests.get(url)
     data = io.BytesIO(response.content)
-    df = pd.read_excel(data, sheet_name='Sheet1')  # Adjust sheet_name if necessary
+    df = pd.read_excel(data, sheet_name='Sheet1', engine='openpyxl')  # Specify the engine here
     return df
 
 # Title of the app
@@ -195,7 +195,7 @@ if st.button("Use Example Data"):
 
 # Process uploaded file if provided
 if uploaded_file is not None:
-    data = pd.read_excel(uploaded_file)
+    data = pd.read_excel(uploaded_file, engine='openpyxl')
     
     min_year = int(data['Year'].min())
     max_year = int(data['Year'].max())
